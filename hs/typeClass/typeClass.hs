@@ -14,16 +14,16 @@ instance BasicEq Bool where
   isEqual _ _ = False
 
 -- data Color =  Red | Blue | Green
-instance Show Color where
-  show Red   = "Red"
-  show Green = "Green"
-  show Blue  = "Blue"
+-- instance Show Color where
+--   show Red   = "Red"
+--   show Green = "Green"
+--   show Blue  = "Blue"
 
-instance BasicEq Color where
-  isEqual Red Red = True
-  isEqual Blue Blue = True
-  isEqual Green Green = True
-  isEqual _ _ = True
+-- instance BasicEq Color where
+--   isEqual Red Red = True
+--   isEqual Blue Blue = True
+--   isEqual Green Green = True
+--   isEqual _ _ = True
 
 -- 内置类介绍
 -- Show
@@ -32,3 +32,9 @@ instance BasicEq Color where
 --    如果你定义了一个新类型，并希望通过ghci显示，那么你应该将这个类型实现为Show类型的实例
 -- Read
 --    Read 将字符串 转换为值
+-- 使用 Read 和 Show 进行序列化和反序列化
+
+-- 自动派生
+data Color = Red | Green | Blue
+  deriving (Read, Show, Eq, Ord)
+--    自动派生并不总是可用
