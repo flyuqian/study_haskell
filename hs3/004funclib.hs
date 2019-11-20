@@ -84,4 +84,91 @@
       [1,1,1,2,2,2,3,3,3]
       Prelude> concat (map (replicate 3) [1, 2, 3])
       [1,1,1,2,2,2,3,3,3]
+
+
+定义历法公式
+
+
+字符串处理函数
+  show a => a -> String, 将Show里的数据作为字符串
+  read :: Read a => String -> a, 可以将可读的类型从字符串类型解析为类型 a
+    read 函数返回的结果类型可能有很多种，需要制定一种 ::
+  lines unlines
+    lines string -> [String] 将字符串以 \n 为分隔符转换为一个字符串列表
+    unlines 与 lines 相反
+  words unwords
+    words 函数将字符串用空格分开
+    unwords 相反
+
+  
+字符 与 位函数库 简介
+
+  Data.Char
+    chr/ord 字符与ASCII码互转
+    isDigit isLower isUpper isAlpha isControl,判断一个字符是不是 数字、大写。小写、英文字符、控制字符
+
+  Data.Bits
+    :browse! Data.Bits 查看该库中定义的内容
+      Prelude> :browse! Data.Bits
+      -- not currently imported
+      (Data.Bits..&.) :: Data.Bits.Bits a => a -> a -> a
+      (Data.Bits..|.) :: Data.Bits.Bits a => a -> a -> a
+      class Eq a => Data.Bits.Bits a
+        ...
+      class Data.Bits.Bits b => Data.Bits.FiniteBits b
+        ...
+      Data.Bits.bit :: Data.Bits.Bits a => Int -> a
+      Data.Bits.bitDefault :: (Data.Bits.Bits a, Num a) => Int -> a
+      Data.Bits.bitSize :: Data.Bits.Bits a => a -> Int
+      Data.Bits.bitSizeMaybe :: Data.Bits.Bits a => a -> Maybe Int
+      Data.Bits.clearBit :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.complement :: Data.Bits.Bits a => a -> a
+      Data.Bits.complementBit :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.countLeadingZeros :: Data.Bits.FiniteBits b => b -> Int
+      Data.Bits.countTrailingZeros :: Data.Bits.FiniteBits b => b -> Int
+      Data.Bits.finiteBitSize :: Data.Bits.FiniteBits b => b -> Int
+      Data.Bits.isSigned :: Data.Bits.Bits a => a -> Bool
+      Data.Bits.popCount :: Data.Bits.Bits a => a -> Int
+      Data.Bits.popCountDefault :: (Data.Bits.Bits a, Num a) => a -> Int
+      Data.Bits.rotate :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.rotateL :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.rotateR :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.setBit :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.shift :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.shiftL :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.shiftR :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.testBit :: Data.Bits.Bits a => a -> Int -> Bool
+      Data.Bits.testBitDefault ::
+        (Data.Bits.Bits a, Num a) => a -> Int -> Bool
+      Data.Bits.toIntegralSized ::
+        (Integral a, Integral b, Data.Bits.Bits a, Data.Bits.Bits b) =>
+        a -> Maybe b
+      Data.Bits.unsafeShiftL :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.unsafeShiftR :: Data.Bits.Bits a => a -> Int -> a
+      Data.Bits.xor :: Data.Bits.Bits a => a -> a -> a
+      Data.Bits.zeroBits :: Data.Bits.Bits a => a
+
 -}
+
+-- 定义历法公式
+type Weekday = Int
+type Year = Int
+type Month = Int
+type Day = Int
+week' :: Year -> Day -> Weekday
+week' y d = let y1 = y -1 in 
+  (y1 + (div y1 4) -(div y1 100) + (div y1 400) + d) `mod` 7
+
+isLeapYear :: Int -> Bool
+isLeapYear y = (mod y 4 == 0) && (mod y 100 /= 0) || (mod y 400 == 0)
+
+monthDays :: Year -> Month -> Int
+monthDays y m | m == 2 = if not $ isLeapYear y then 28 else 29
+              | elem m [1, 3, 5, 7, 8, 10, 12] = 31
+              | elem m [4, 6, 9, 11] = 30
+              | otherwise = error "invaid month"
+-- accDays 函数积累某一年内，该日期经过的天数
+accDays :: Year -> Month -> Day -> Int
+accDays y m d | d > monthDays y m = error "invalid days"
+              | otherwise = (sum $ take (m -1) (map (monthDays y) [1..12])) + d
+week y m d = week' y (accDays y m d)
